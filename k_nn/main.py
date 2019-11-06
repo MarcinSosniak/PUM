@@ -80,7 +80,7 @@ def get_data_from_picture(path):
             elif arr[x][y][1]==255:
                 out.append((float(x)+random.uniform(0,1), float(y)+random.uniform(0,1),1))
             elif arr[x][y][2] == 255:
-                    out.append((float(x)+random.uniform(0,1), float(y)+random.uniform(0,1), 2))
+                out.append((float(x)+random.uniform(0,1), float(y)+random.uniform(0,1), 2))
     return out,arr.shape
 
 
@@ -142,9 +142,13 @@ def k_fun_n1_euk(data,coord,dist_obj):
 
 def k_fun_n7_euk(data,coord,dist_obj):
     min_dist_and_class_list=[[-1,-1] for i in range(7)]
-    for elem in data:
+    for i,elem in enumerate(data):
         dist= euk_dist(coord,(elem[0],elem[1]))
         max_v,id= biggest_id(min_dist_and_class_list,key= lambda x : x[0])
+        if i<7:
+            min_dist_and_class_list[i][0]=dist
+            min_dist_and_class_list[i][1] = elem[2]
+            continue
         if dist < max_v or max_v==-1:
             min_dist_and_class_list[id][0]=dist
             min_dist_and_class_list[id][1]=elem[2]
@@ -157,9 +161,13 @@ def k_fun_n7_euk(data,coord,dist_obj):
 
 def k_fun_n7_euk_weight(data,coord,dist_obj):
     min_dist_and_class_list=[[-1,-1] for i in range(7)]
-    for elem in data:
+    for i,elem in enumerate(data):
         dist= euk_dist(coord,(elem[0],elem[1]))
         max_v,id= biggest_id(min_dist_and_class_list,key= lambda x : x[0])
+        if i < 7:
+            min_dist_and_class_list[i][0] = dist
+            min_dist_and_class_list[i][1] = elem[2]
+            continue
         if dist < max_v or max_v==-1:
             min_dist_and_class_list[id][0]=dist
             min_dist_and_class_list[id][1]=elem[2]
@@ -175,7 +183,7 @@ def k_fun_n1_mah(data,coord,dist_obj):
     best_class= data[0][2]
     min_dist = dist_obj.dist((data[0][0],data[0][1]),coord)
     for elem in data:
-        dist=  dist_obj.dist((elem[0],elem[1]),coord)
+        dist = dist_obj.dist((elem[0],elem[1]),coord)
         if dist < min_dist:
             min_dist=dist
             best_class=elem[2]
@@ -184,9 +192,13 @@ def k_fun_n1_mah(data,coord,dist_obj):
 
 def k_fun_n7_mah_weigh(data,coord,dist_obj):
     min_dist_and_class_list = [[-1, -1] for i in range(7)]
-    for elem in data:
+    for i,elem in enumerate(data):
         dist = dist_obj.dist(coord, (elem[0], elem[1]))
         max_v, id = biggest_id(min_dist_and_class_list, key=lambda x: x[0])
+        if i < 7:
+            min_dist_and_class_list[i][0] = dist
+            min_dist_and_class_list[i][1] = elem[2]
+            continue
         if dist < max_v or max_v==-1:
             min_dist_and_class_list[id][0] = dist
             min_dist_and_class_list[id][1] = elem[2]
@@ -254,6 +266,39 @@ def run_test(data,k_fun_list_euk,k_fun_list_mah):
     return test_euk
 
 
+def division_line(path):
+    data,shape= get_data_from_picture(path)
+    data_vals = list(map(lambda x:  (x[0],x[1]), data))
+    k_fun_euk_list=[k_fun_n1_euk,k_fun_n7_euk,k_fun_n7_euk_weight]
+    k_fun_mah_list=[k_fun_n1_mah,k_fun_n7_mah_weigh]
+    for i,k_fun_euk in enumerate(k_fun_euk_list):
+        out= np.zeros(shape)
+        for x in range(shape[0]):
+            for y in range(shape[1]):
+                x_f = x + random.uniform(0.,1.)
+                y_f = y + random.uniform(0.,1.)
+                ret=k_fun_euk(data,(x_f,y_f),None)
+                out[x][y][ret]=255
+        plt.imshow(out)
+        plt.savefig(str(i) + "_" + path.split("/")[1])
+    for i,k_fun_mah in enumerate(k_fun_mah_list,3):
+        out= np.zeros(shape)
+        dist = Mah_dist(data_vals)
+        for x in range(shape[0]):
+            for y in range(shape[1]):
+                x_f = x + random.uniform(0.,1.)
+                y_f = y + random.uniform(0.,1.)
+                ret=k_fun_mah(data,(x_f,y_f),dist)
+                out[x][y][ret]=255
+        plt.imshow(out)
+        plt.savefig(str(i)+"_"+path.split("/")[1])
+
+
+
+
+
+
+
 
 
 
@@ -274,7 +319,7 @@ def main_base_test():
             # print("  recall: {}".format(test.recall()))
             # print("  precision: {}".format(test.precision()))
             # print("  f_score: {}".format(test.f_score()))
-            print(test.conf_matrix())
+            # print(test.conf_matrix())
             acc = test.accuracy()
             if acc > max_v:
                 max_v = acc
@@ -300,9 +345,16 @@ def main_print():
     pass
 
 
-def full_test()
+def full_test():
+    pass
+
+def division_test_main():
+    division_line("sets/set1.png")
+    division_line("sets/set2.png")
+    division_line("sets/set3.png")
 
 
 if __name__=="__main__":
     # main_print()
     main_base_test()
+    # division_test_main()
