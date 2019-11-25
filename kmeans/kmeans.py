@@ -166,21 +166,127 @@ def k_means_pp(k,n,data):
     return skc.KMeans(n_clusters= k, init='k-means++',n_init=n).fit(data)
 
 
-def main():
+def autolabel(rects,ax):
+    """Attach a text label above each bar in *rects*, displaying its height."""
+    for rect in rects:
+        height = rect.get_height()
+        ax.annotate('{}'.format(height),
+                    xy=(rect.get_x() + rect.get_width() / 2, height),
+                    xytext=(0, 3),  # 3 points vertical offset
+                    textcoords="offset points",
+                    ha='center', va='bottom')
+
+def main_n():
     data = get_data_from_picture('in/base_set.png')
     types = ['k-means++', 'forgy', 'random', 'random_partition']
-    n_list= [1,3,7,11]
+    n_list= [1,3,7,11,13]
+    n_total_tries = 20
     scores={}
     for type_name in types:
         scores[type_name]= {}
+        for i in n_list:
+            scores[type_name][i] = []
 
+    for k in range(n_total_tries):
+        for type_name in types:
+            print(type_name)
+            for i in n_list:
+                kmeans = k_means(9,i,type_name,data)
+                scores[type_name][i].append(ref_val(get_clusters_from_kmeans(kmeans,9,data)))
+                print('    n = ' + str(i) + '   score = ' + str(scores[type_name][i]))
+
+    scores_lists = {}
+    error_lists= {}
 
     for type_name in types:
-        print(type_name)
-        for i in n_list:
-            kmeans = k_means(9,i,type_name,data)
-            scores[type_name][i]=ref_val(get_clusters_from_kmeans(kmeans,9,data))
-            print('    n = ' + str(i) + '   score = ' + str(scores[type_name][i]))
+        scores_lists[type_name] = []
+        error_lists[type_name] = []
+        for j in n_list:
+            scores_lists[type_name].append( (np.mean(scores[type_name][j])))
+            error_lists[type_name].append(np.std(scores[type_name][j]))
+
+
+
+    x = np.array([ 2+(i*6) for i in range(len(n_list))])
+    width = 1
+    fig,ax = plt.subplots()
+
+    rec_list_top = []
+    rec_list_top.append(ax.bar(x - (width*1.5), scores_lists[types[0]], width, yerr=error_lists[types[0]], label=types[0]))
+    rec_list_top.append(ax.bar(x - (width * 0.5), scores_lists[types[1]], width, yerr=error_lists[types[1]], label=types[1]))
+    rec_list_top.append(ax.bar(x + (width * .5), scores_lists[types[2]], width, yerr=error_lists[types[2]], label=types[2]))
+    rec_list_top.append(ax.bar(x + (width * 1.5), scores_lists[types[3]], width, yerr=error_lists[types[3]], label=types[3]))
+
+
+    # for elem in rec_list:
+    #     autolabel(rec_list,ax)
+
+    ax.set_ylabel('Davies-Bouldin average scores')
+    ax.set_title('Scores for base set k = 9  tries ={} '.format(n_total_tries))
+    ax.set_xticks(x)
+    ax.set_xticklabels(['n='+str(i) for i in n_list])
+    ax.legend()
+
+    fig.tight_layout()
+
+    plt.show()
+
+
+def main_k():
+    data = get_data_from_picture('in/base_set.png')
+    types = ['k-means++', 'forgy', 'random', 'random_partition']
+    k_list= [2,3,4,5,6,7,8,9,10,13,15,17,20]
+    n_total_tries = 2
+    n_base = 10
+    scores={}
+    for type_name in types:
+        scores[type_name]= {}
+        for i in k_list:
+            scores[type_name][i] = []
+
+    for k in range(n_total_tries):
+        for type_name in types:
+            print(type_name)
+            for i in k_list:
+                kmeans = k_means(i,n_base,type_name,data)
+                scores[type_name][i].append(ref_val(get_clusters_from_kmeans(kmeans,i,data)))
+                print('    n = ' + str(i) + '   score = ' + str(scores[type_name][i]))
+
+    scores_lists = {}
+    error_lists= {}
+
+    for type_name in types:
+        scores_lists[type_name] = []
+        error_lists[type_name] = []
+        for j in k_list:
+            scores_lists[type_name].append( (np.mean(scores[type_name][j])))
+            error_lists[type_name].append(np.std(scores[type_name][j]))
+
+
+
+    x = np.array([ 2+(i*6) for i in range(len(k_list))])
+    width = 1
+    fig,ax = plt.subplots()
+
+    rec_list_top = []
+    rec_list_top.append(ax.bar(x - (width*1.5), scores_lists[types[0]], width, yerr=error_lists[types[0]], label=types[0]))
+    rec_list_top.append(ax.bar(x - (width * 0.5), scores_lists[types[1]], width, yerr=error_lists[types[1]], label=types[1]))
+    rec_list_top.append(ax.bar(x + (width * .5), scores_lists[types[2]], width, yerr=error_lists[types[2]], label=types[2]))
+    rec_list_top.append(ax.bar(x + (width * 1.5), scores_lists[types[3]], width, yerr=error_lists[types[3]], label=types[3]))
+
+
+    # for elem in rec_list:
+    #     autolabel(rec_list,ax)
+
+    ax.set_ylabel('Davies-Bouldin average scores')
+    ax.set_title('Scores for bad set n for each call = 10; total calls per method = {} '.format(n_total_tries))
+    ax.set_xticks(x)
+    ax.set_xticklabels(['k='+str(i) for i in k_list])
+    ax.legend()
+
+    fig.tight_layout()
+
+    plt.show()
 
     # for key in scores.keys():
     #     print(key)
@@ -190,7 +296,7 @@ def main():
 
 
 if __name__=='__main__':
-    main()
-
+    # main_n()
+    main_k()
 
 
