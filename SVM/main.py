@@ -84,8 +84,12 @@ def apply_range_filter(arr):
     return out
 
 
-def svm(classes,classes_nr,kernel,shape,c=1):
-    svc_obj = SVC(kernel='linear')
+def svm(classes,classes_nr,kernel,shape,c_v=1,gamma_v =None):
+    svc_obj = None
+    if gamma_v is not None:
+        svc_obj=SVC(kernel=kernel,C=c_v,gamma=gamma_v)
+    else:
+        svc_obj = SVC(kernel=kernel, C=c_v)
     svc_obj.fit(classes, classes_nr)
     amount = len(classes)
     right = 0
@@ -116,6 +120,53 @@ def svm(classes,classes_nr,kernel,shape,c=1):
 
     return accuracy,apply_range_filter(show_arr)
 
+
+def map_char(c):
+    if c=='.':
+        return '_'
+    if c==' ':
+        return '__'
+    return c
+
+
+def fulltest():
+    class1, class2, shape = get_data_from_picture("in/set.png")
+    classes = list(class1)
+    classes.extend(class2)
+    classes_nr = [1 for elem in class1]
+    classes_nr.extend([2 for elem in class2])
+
+    c_list = [0.1,0.3,0.7,1,1.2,1.6,2.0,2.5,3.0,4.0,5.0]
+    kernel_list = ['linear','poly','rbf']
+    gamma_list = [0.1,0.2,0.35,0.5,0.65,0.8,1.1]
+
+
+    retries = 3
+    with open('out/stat.txr','w+') as f:
+        for kernel in kernel_list:
+            print(kernel)
+            print(kernel, file=f)
+            for gamma in gamma_list:
+                print("  gamma: "+str(gamma))
+                print("  gamma: "+str(gamma),file=f)
+                for c in c_list:
+                    print("    c: "+str(c))
+                    print("    c: "+str(c),file=f)
+                    print("      ",end='')
+                    print("      ",end='',file=f)
+                    for i in range(retries):
+                        acc, show_arr =None,None
+                        if kernel=='linear':
+                            acc,show_arr= svm(classes, classes_nr, kernel, shape,c_v=c,gamma_v=gamma)
+                        else:
+                            acc,show_arr= svm(classes, classes_nr, kernel, shape,c_v=c)
+                        print(acc,end='')
+                        print(acc,end='',file=f)
+                        filename= "{} gamma {} c {} i {}".format(kernel,gamma,c,i)
+                        filename = ''.join(list(map(map_char,filename)))
+                        filename = 'out/' + filename
+                        plt.imshow(show_arr)
+                        plt.savefig(filename)
 
 
 
