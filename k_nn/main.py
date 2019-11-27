@@ -7,6 +7,20 @@ from PIL import Image
 import random
 
 
+def nr_to_method(nr):
+    if nr==0:
+        return 'k=1 euk'
+    if nr==1:
+        return 'k=7 euk'
+    if nr==2:
+        return 'k=7 euk weight'
+    if nr==3:
+        return 'k=1 mah'
+    if nr==4:
+        return 'k=7 mah weight'
+
+
+
 class Test_res:
     def __init__(self):
         self.false_positive=0
@@ -26,10 +40,22 @@ class Test_res:
     def precision(self):
         return self.true_positive/(self.true_positive + self.false_positive)
 
+    def sensitivty(self):
+        return self.recall()
+
+    def specificity(self):
+        return self.true_negative/(self.true_negative+self.false_positive)
+
+    def roc_rating(self):
+        return self.sensitivty(),self.specificity()
+
     def f_score(self):
         rec = self.recall()
         prec = self.precision()
         return (2*rec*prec)/(rec+prec)
+
+    def g_score(self):
+        return math.sqrt(self.precision()*self.accuracy())
 
     def conf_matrix(self):
         arr=np.zeros((2,2),dtype=np.uint64)
@@ -299,6 +325,44 @@ def division_line(path):
 
 
 
+def main_precise_test():
+    path = 'sets/set3.png'
+    data, shape = get_data_from_picture(path)
+    test_res = run_test(data, [k_fun_n1_euk, k_fun_n7_euk, k_fun_n7_euk_weight], [k_fun_n1_mah, k_fun_n7_mah_weigh])
+    for i, test in enumerate(test_res):
+        print("  " + nr_to_method(i))
+        print("    accuracy: {}".format(test.accuracy()))
+        print("  recall: {}".format(test.recall()))
+        print("  precision: {}".format(test.precision()))
+        print("  f_score: {}".format(test.f_score()))
+        print("  g_score: {}".format(test.g_score()))
+        print(" TP: {} TN: {} FP: {} FN: {}".format(test.true_positive,test.true_negative,test.false_positive,test.false_negative))
+        # print(test.conf_matrix())
+    sensitivity_list= []
+    specificity_list = []
+    names_list= []
+    for i,test in enumerate(test_res):
+        x= test.sensitivty()
+        y =test.specificity()
+        plt.scatter(x,y, marker='x',color='blue')
+        plt.text(x+0.001, y+0.001, nr_to_method(i), fontsize=8,color='blue')
+        print('{} {} '.format(x,y) + nr_to_method(i))
+    plt.xlabel('sensitivity')
+    plt.ylabel('specificity')
+    plt.show()
+
+    for i,test in enumerate(test_res):
+        x= test.precision()
+        y =test.recall()
+        plt.scatter(x,y, marker='x',color='blue')
+        plt.text(x+0.001, y+0.001, nr_to_method(i), fontsize=8,color='blue')
+        print('{} {} '.format(x,y) + nr_to_method(i))
+    plt.xlabel('precision')
+    plt.ylabel('recall')
+    plt.show()
+
+
+
 
 
 
@@ -314,7 +378,7 @@ def main_base_test():
         data,shape= get_data_from_picture(path)
         test_res= run_test(data,[k_fun_n1_euk,k_fun_n7_euk,k_fun_n7_euk_weight],[k_fun_n1_mah,k_fun_n7_mah_weigh])
         for i,test in enumerate(test_res):
-            print("  {}".format(i))
+            print("  "+ nr_to_method(i))
             print("    accuracy: {}".format(test.accuracy()))
             # print("  recall: {}".format(test.recall()))
             # print("  precision: {}".format(test.precision()))
@@ -356,5 +420,7 @@ def division_test_main():
 
 if __name__=="__main__":
     # main_print()
-    main_base_test()
+    # main_base_test()
     # division_test_main()
+
+    main_precise_test()

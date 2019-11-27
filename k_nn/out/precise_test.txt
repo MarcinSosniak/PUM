@@ -1,0 +1,30 @@
+k=1 euk
+    accuracy: 0.38095238095238093
+    recall: 0.3333333333333333
+    precision: 0.8571428571428571
+    f_score: 0.48
+    TP: 84 TN: 28 FP: 14 FN: 168
+k=7 euk
+    accuracy: 0.40476190476190477
+    recall: 0.3333333333333333
+    precision: 0.7857142857142857
+    f_score: 0.4680851063829786
+    TP: 77 TN: 42 FP: 21 FN: 154
+k=7 euk weight
+    accuracy: 0.3945578231292517
+    recall: 0.3333333333333333
+    precision: 0.8163265306122449
+    f_score: 0.47337278106508873
+    TP: 80 TN: 36 FP: 18 FN: 160
+k=1 mah
+    accuracy: 0.3843537414965986
+    recall: 0.3373493975903614
+    precision: 0.84
+    f_score: 0.481375358166189
+    TP: 84 TN: 29 FP: 16 FN: 165
+k=7 mah weight
+    accuracy: 0.3945578231292517
+    recall: 0.3445378151260504
+    precision: 0.7884615384615384
+    f_score: 0.47953216374269003
+    TP: 82 TN: 34 FP: 22 FN: 156
