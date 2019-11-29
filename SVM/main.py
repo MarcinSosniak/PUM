@@ -104,7 +104,7 @@ def svm(classes,classes_nr,kernel,shape,c_v=1,gamma_v =None):
         for y in range(shape[1]):
             to_predict.append([x,y])
     predicted_classes= svc_obj.predict(to_predict)
-    print(predicted_classes)
+    # print(predicted_classes)
     i=0
     for x in range(shape[0]) :
         for y in range(shape[1]):
@@ -142,7 +142,7 @@ def fulltest():
 
 
     retries = 3
-    with open('out/stat.txr','w+') as f:
+    with open('out/stat.txt','w+') as f:
         for kernel in kernel_list:
             print(kernel)
             print(kernel, file=f)
@@ -156,17 +156,19 @@ def fulltest():
                     print("      ",end='',file=f)
                     for i in range(retries):
                         acc, show_arr =None,None
-                        if kernel=='linear':
+                        if not kernel=='linear':
                             acc,show_arr= svm(classes, classes_nr, kernel, shape,c_v=c,gamma_v=gamma)
                         else:
                             acc,show_arr= svm(classes, classes_nr, kernel, shape,c_v=c)
-                        print(acc,end='')
-                        print(acc,end='',file=f)
+                        print(acc,end=' ')
+                        print(acc,end=' ',file=f)
                         filename= "{} gamma {} c {} i {}".format(kernel,gamma,c,i)
                         filename = ''.join(list(map(map_char,filename)))
                         filename = 'out/' + filename
                         plt.imshow(show_arr)
                         plt.savefig(filename)
+                    print('')
+                    print('',file=f)
 
 
 
@@ -203,5 +205,6 @@ def main():
 
 
 if __name__=="__main__":
-    main()
+    # main()
+    fulltest()
     pass
